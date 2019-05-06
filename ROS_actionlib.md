@@ -53,127 +53,127 @@
     ```
 * __Simple Server__
   * Example :
-```C++
-   #include <ros/ros.h>
-#include <actionlib/server/simple_action_server.h>
-#include <actionlib_tutorials/FibonacciAction.h>
+    ```C++
+      #include <ros/ros.h>
+      #include <actionlib/server/simple_action_server.h>
+      #include <actionlib_tutorials/FibonacciAction.h>
 
-class FibonacciAction
-{
-protected:
-
-  ros::NodeHandle nh_;  //creating a nodehandle is necessary before declaring a node
-  actionlib::SimpleActionServer<actionlib_tutorials::FibonacciAction> as_; // NodeHandle instance must be created before this line. Otherwise strange error occurs.
-  std::string action_name_;
-  // create messages that are used to published feedback/result
-  actionlib_tutorials::FibonacciFeedback feedback_;
-  actionlib_tutorials::FibonacciResult result_;
-
-public:
-
-  FibonacciAction(std::string name) :
-    as_(nh_, name, boost::bind(&FibonacciAction::executeCB, this, _1), false),
-    action_name_(name)
-  {
-    as_.start();
-  }
-
-  ~FibonacciAction(void)
-  {
-  }
-
-  void executeCB(const actionlib_tutorials::FibonacciGoalConstPtr &goal)
-  {
-    // helper variables
-    ros::Rate r(1);     //Rate at which to send the goal to the server
-    bool success = true;
-
-    // push_back the seeds for the fibonacci sequence
-    feedback_.sequence.clear();
-    feedback_.sequence.push_back(0); // pushback is a function to add elements to a vector
-    feedback_.sequence.push_back(1);
-
-    // publish info to the console for the user
-    ROS_INFO("%s: Executing, creating fibonacci sequence of order %i with seeds %i, %i", action_name_.c_str(), goal->order, feedback_.sequence[0], feedback_.sequence[1]);
-
-    // start executing the action
-    for(int i=1; i<=goal->order; i++)
-    {
-      // check that preempt has not been requested by the client
-      if (as_.isPreemptRequested() || !ros::ok())
+      class FibonacciAction
       {
-        ROS_INFO("%s: Preempted", action_name_.c_str());
-        // set the action state to preempted
-        as_.setPreempted();
-        success = false;
-        break;
+      protected:
+
+        ros::NodeHandle nh_;  //creating a nodehandle is necessary before declaring a node
+        actionlib::SimpleActionServer<actionlib_tutorials::FibonacciAction> as_; // NodeHandle instance must be created       before this line. Otherwise strange error occurs.
+        std::string action_name_;
+        // create messages that are used to published feedback/result
+        actionlib_tutorials::FibonacciFeedback feedback_;
+        actionlib_tutorials::FibonacciResult result_;
+
+      public:
+
+        FibonacciAction(std::string name) :
+          as_(nh_, name, boost::bind(&FibonacciAction::executeCB, this, _1), false),
+          action_name_(name)
+        {
+        as_.start();
+        }
+
+        ~FibonacciAction(void)
+        {
+        }
+
+        void executeCB(const actionlib_tutorials::FibonacciGoalConstPtr &goal)
+        {
+          // helper variables
+          ros::Rate r(1);     //Rate at which to send the goal to the server
+          bool success = true;
+
+          // push_back the seeds for the fibonacci sequence
+          feedback_.sequence.clear();
+          feedback_.sequence.push_back(0); // pushback is a function to add elements to a vector
+          feedback_.sequence.push_back(1);
+
+          // publish info to the console for the user
+          ROS_INFO("%s: Executing, creating fibonacci sequence of order %i with seeds %i, %i", action_name_.c_str(), goal->order, feedback_.sequence[0], feedback_.sequence[1]);
+
+          // start executing the action
+          for(int i=1; i<=goal->order; i++)
+          {
+            // check that preempt has not been requested by the client
+            if (as_.isPreemptRequested() || !ros::ok())
+            {
+              ROS_INFO("%s: Preempted", action_name_.c_str());
+              // set the action state to preempted
+              as_.setPreempted();
+              success = false;
+              break;
+            }
+            feedback_.sequence.push_back(feedback_.sequence[i] + feedback_.sequence[i-1]);
+            // publish the feedback
+            as_.publishFeedback(feedback_); 
+            // this sleep is not necessary, the sequence is computed at 1 Hz for demonstration purposes
+            r.sleep();  //to let the next requests wait until the current is processing 
+          }
+
+          if(success)
+          {
+            result_.sequence = feedback_.sequence;
+            ROS_INFO("%s: Succeeded", action_name_.c_str());
+            // set the action state to succeeded
+            as_.setSucceeded(result_);
+          }
+        }
+
+
+      };
+
+
+      int main(int argc, char** argv)
+      {
+        ros::init(argc, argv, "fibonacci");  //"fibonacci" will be the name of the node
+
+        FibonacciAction fibonacci("fibonacci");
+        ros::spin();
+
+        return 0;
       }
-      feedback_.sequence.push_back(feedback_.sequence[i] + feedback_.sequence[i-1]);
-      // publish the feedback
-      as_.publishFeedback(feedback_); 
-      // this sleep is not necessary, the sequence is computed at 1 Hz for demonstration purposes
-      r.sleep();  //to let the next requests wait until the current is processing 
-    }
+      ```
+   * Final CMakeLists.txt
+      ```
+      cmake_minimum_required(VERSION 2.8.3)
+      project(actionlib_tutorials)
 
-    if(success)
-    {
-      result_.sequence = feedback_.sequence;
-      ROS_INFO("%s: Succeeded", action_name_.c_str());
-      // set the action state to succeeded
-      as_.setSucceeded(result_);
-    }
-  }
+      find_package(catkin REQUIRED COMPONENTS roscpp actionlib actionlib_msgs)
+      find_package(Boost REQUIRED COMPONENTS system)
 
+      add_action_files(
+        DIRECTORY action
+         FILES Fibonacci.action
+      )
 
-};
+        generate_messages(
+        DEPENDENCIES actionlib_msgs std_msgs
+        )
 
+        catkin_package(
+           CATKIN_DEPENDS actionlib_msgs
+        )
 
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "fibonacci");  //"fibonacci" will be the name of the node
+        include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
-  FibonacciAction fibonacci("fibonacci");
-  ros::spin();
+        add_executable(fibonacci_server src/fibonacci_server.cpp) 
 
-  return 0;
-}
-```
-* Final CMakeLists.txt
-   ```
-   cmake_minimum_required(VERSION 2.8.3)
-   project(actionlib_tutorials)
+        target_link_libraries(
+           fibonacci_server
+          ${catkin_LIBRARIES}
+        )
 
-   find_package(catkin REQUIRED COMPONENTS roscpp actionlib actionlib_msgs)
-   find_package(Boost REQUIRED COMPONENTS system)
-
-   add_action_files(
-     DIRECTORY action
-     FILES Fibonacci.action
-   )
-
-   generate_messages(
-   DEPENDENCIES actionlib_msgs std_msgs
-   )
-
-   catkin_package(
-     CATKIN_DEPENDS actionlib_msgs
-   )
-
-   include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
-
-   add_executable(fibonacci_server src/fibonacci_server.cpp) 
-  
-   target_link_libraries(
-     fibonacci_server
-     ${catkin_LIBRARIES}
-   )
-
-   add_dependencies(
-     fibonacci_server
-     ${actionlib_tutorials_EXPORTED_TARGETS}
-   )
-   ```
-    * Running the action server 
+        add_dependencies(
+           fibonacci_server
+          ${actionlib_tutorials_EXPORTED_TARGETS}
+        )
+        ```
+  * Running the action server 
     ```
     $ roscore
     ```
