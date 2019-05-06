@@ -9,14 +9,14 @@
   * result : A result is sent from the ActionServer to the ActionClient upon completion of the goal. This is different than feedback, since it is sent exactly once.
   * Example of an action file(to be created in a new action folder inside the src folder of the package.) <br />
     '''bash
-    \# Define the goal
-      uint32 dishwasher_id  # Specify which dishwasher we want to use
-      ---
-    \# Define the result
-      uint32 total_dishes_cleaned
-    ---
-    \# Define a feedback message
-      float32 percent_complete
+    \# Define the goal <br />
+      uint32 dishwasher_id  # Specify which dishwasher we want to use <br />
+      /---  <br />
+    \# Define the result <br />
+      uint32 total_dishes_cleaned <br />
+     /--- <br />
+    \# Define a feedback message <br />
+      float32 percent_complete <br />
       '''
 
 
