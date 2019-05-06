@@ -7,3 +7,18 @@
   * goal : a goal that can be sent to an ActionServer by an ActionClient. It  contains information about where the robot should move to in the world. 
   * feedback : Feedback provides server implementers a way to tell an ActionClient about the incremental progress of a goal.
   * result : A result is sent from the ActionServer to the ActionClient upon completion of the goal. This is different than feedback, since it is sent exactly once.
+  * Example of an action file(to be created in a new action folder inside the src folder of the package.) <br />
+    '''bash
+    \# Define the goal
+      uint32 dishwasher_id  # Specify which dishwasher we want to use
+      ---
+    \# Define the result
+      uint32 total_dishes_cleaned
+    ---
+    \# Define a feedback message
+      float32 percent_complete
+      '''
+
+
+    
+    
