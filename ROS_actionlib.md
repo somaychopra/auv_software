@@ -51,7 +51,7 @@
     $ catkin_make
     $ ls devel/share/actionlib_tutorials/msg/
     ```
-* Simple Server
+* __Simple Server__
   * Example :
 ```C++
    #include <ros/ros.h>
@@ -139,53 +139,54 @@ int main(int argc, char** argv)
 }
 ```
 * Final CMakeLists.txt
-  ```
-  cmake_minimum_required(VERSION 2.8.3)
-  project(actionlib_tutorials)
+   ```
+   cmake_minimum_required(VERSION 2.8.3)
+   project(actionlib_tutorials)
 
-  find_package(catkin REQUIRED COMPONENTS roscpp actionlib actionlib_msgs)
-  find_package(Boost REQUIRED COMPONENTS system)
+   find_package(catkin REQUIRED COMPONENTS roscpp actionlib actionlib_msgs)
+   find_package(Boost REQUIRED COMPONENTS system)
 
-  add_action_files(
-    DIRECTORY action
-    FILES Fibonacci.action
-  )
+   add_action_files(
+     DIRECTORY action
+     FILES Fibonacci.action
+   )
 
-  generate_messages(
-  DEPENDENCIES actionlib_msgs std_msgs
-  )
+   generate_messages(
+   DEPENDENCIES actionlib_msgs std_msgs
+   )
 
-  catkin_package(
-    CATKIN_DEPENDS actionlib_msgs
-  )
+   catkin_package(
+     CATKIN_DEPENDS actionlib_msgs
+   )
 
-  include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+   include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
-  add_executable(fibonacci_server src/fibonacci_server.cpp) 
+   add_executable(fibonacci_server src/fibonacci_server.cpp) 
   
-  target_link_libraries(
-    fibonacci_server
-    ${catkin_LIBRARIES}
-  )
+   target_link_libraries(
+     fibonacci_server
+     ${catkin_LIBRARIES}
+   )
 
-  add_dependencies(
-    fibonacci_server
-    ${actionlib_tutorials_EXPORTED_TARGETS}
-  )
+   add_dependencies(
+     fibonacci_server
+     ${actionlib_tutorials_EXPORTED_TARGETS}
+   )
+   ```
+    * Running the action server 
     ```
- * Running the action server 
-  ```
-  $ roscore
-  ```
-  ```
-  $ rosrun actionlib_tutorials fibonacci_server
-  ```
-  Then to check whether the action is runnung properly list the topics being published
-  ```
-  $ rostopic list -v
-  ```
-  Alternatively
-  ```
-  $ rqt_graph
-  ```
-  
+    $ roscore
+    ```
+    ```
+    $ rosrun actionlib_tutorials fibonacci_server
+    ```
+    Then to check whether the action is running properly list the topics being published
+    ```
+    $ rostopic list -v
+    ```
+    Alternatively
+    ```
+    $ rqt_graph
+    ```
+* __Simple client__
+  *
