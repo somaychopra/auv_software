@@ -28,5 +28,16 @@ sm = smach.StateMachine(outcomes=['outcome4','outcome5'])
                             transitions={'outcome2':'FOO'})
 
 ```
-![](http://wiki.ros.org/smach/Tutorials/Getting%20Started?action=AttachFile&do=get&target=simple.png)
+![](http://wiki.ros.org/smach/Tutorials/Getting%20Started?action=AttachFile&do=get&target=simple.png)<br />
+__Example of a simple state machine__: [__Link__](http://wiki.ros.org/smach/Tutorials/Simple%20State%20Machine)<br />
+Running the example
+```
+$ git clone https://github.com/eacousineau/executive_smach_tutorials.git
+$ cd executive_smach_tutorials
+$ ./examples/state_machine_simple.py
+```
+```
+$ roscd smach_tutorials
+$ ./examples/state_machine_simple.py
+```
 
