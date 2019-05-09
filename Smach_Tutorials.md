@@ -82,7 +82,7 @@ The remapping field maps the in/output_key of a state to a userdata field of the
 * x needs to be an input_key or an output_key of the state, and 
 * y will automatically become part of the userdata of the state machine. 
 > Note that remapping is not required when the user data names used in your state are the same as the user data names used by the state machine. However, remapping makes the connections very explicit, so it is recommended to always specify remapping, even something like "remapping={'a':'a'}".<br />
-
-Quote break.
 ![](http://wiki.ros.org/smach/Tutorials/User%20Data?action=AttachFile&do=get&target=user_data.png)
+__Example__[__Link__](http://wiki.ros.org/smach/Tutorials/User%20Data%20Passing)
+
 
