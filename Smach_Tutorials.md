@@ -40,4 +40,41 @@ $ ./examples/state_machine_simple.py
 $ roscd smach_tutorials
 $ ./examples/state_machine_simple.py
 ```
+### Passing and using user data
+The input and output data of a state is called userdata of the state. <br />
+__Passing user data__
+```python
+ class Foo(smach.State):
+     def __init__(self, outcomes=['outcome1', 'outcome2'],
+                        input_keys=['foo_input'],
+                        output_keys=['foo_output'])
+
+     def execute(self, userdata):
+        # Do something with userdata
+        if userdata.foo_input == 1:
+            return 'outcome1'
+        else:
+            userdata.foo_output = 3
+            return 'outcome2'
+
+```
+* The input_keys list enumerates all the inputs that a state needs to run. A state declares that it expect these fields to exist in the userdata. The execute method is provided a copy of the userdata struct. The state can read from all userdata fields that it enumerates in the input_keys list, but it can't write to any of these fields. 
+* The output_keys list enumerates all the outputs that a state provides. The state can write to all fields in the userdata struct that are enumerated in the output_keys list. <br />
+__Connecting user data__
+```python
+sm_top = smach.StateMachine(outcomes=['outcome4','outcome5'],
+                          input_keys=['sm_input'],
+                          output_keys=['sm_output'])
+  with sm_top:
+     smach.StateMachine.add('FOO', Foo(),
+                            transitions={'outcome1':'BAR',
+                                         'outcome2':'outcome4'},
+                            remapping={'foo_input':'sm_input',
+                                       'foo_output':'sm_data'})
+     smach.StateMachine.add('BAR', Bar(),
+                            transitions={'outcome2':'FOO'},
+                            remapping={'bar_input':'sm_data',
+                                       'bar_output1':'sm_output'})
+
+```
 
