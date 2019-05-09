@@ -77,4 +77,10 @@ sm_top = smach.StateMachine(outcomes=['outcome4','outcome5'],
                                        'bar_output1':'sm_output'})
 
 ```
+The remapping field maps the in/output_key of a state to a userdata field of the state machine. So when you remap 'x':'y':
+
+* x needs to be an input_key or an output_key of the state, and 
+* y will automatically become part of the userdata of the state machine. 
+> Note that remapping is not required when the user data names used in your state are the same as the user data names used by the state machine. However, remapping makes the connections very explicit, so it is recommended to always specify remapping, even something like "remapping={'a':'a'}".
+
 
