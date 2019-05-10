@@ -305,9 +305,9 @@ with cc:
     Concurrence.add('FOO', Foo())
     Concurrence.add('BAR', Bar())
 ```
-The example above specifies the following policy: 
-     * When 'FOO' has outcome 'succeeded' and 'BAR' has outcome 'outcome2', the state machine will exit with outcome 'succeeded'.
-     * When 'FOO' has outcome 'outcome2', the state machine will exit with outcome 'outcome3', independent of the outcome of state BAR.
+The example above specifies the following policy: <br />
+      * When 'FOO' has outcome 'succeeded' and 'BAR' has outcome 'outcome2', the state machine will exit with outcome 'succeeded'.
+      * When 'FOO' has outcome 'outcome2', the state machine will exit with outcome 'outcome3', independent of the outcome of state BAR.
 * Callbacks
 
 
