@@ -1,5 +1,6 @@
 # Smach Tutorials
 Smach, which stands for "State Machine", is a powerful and scalable Python-based library for hierarchical state machines. The Smach library does not depend on ROS, and can be used in any Python project. The executive_smach stack however provides very nice integration with ROS, including smooth actionlib integration and a powerful Smach viewer to visualize and introspect state machines.
+## Learning SMACH
 ### Creating a State Machine
 ```python
 class Foo(smach.State):
@@ -251,7 +252,65 @@ __Example Code__ __:__[__Link__](http://wiki.ros.org/smach/Tutorials/Concurrent%
 * This code helps in understanding two states running in parallel.
 * For example the states FOO and BAR running at the same time when FOO gives outcome2 and BAR gives outcome1 then the outcome of BAS comes out to be outcome5otherwise a default outcome4.
 
-### Viewing state machines
+## SMACH Containers
+### State machine container
+* Creating a State Machine<br />
+Import the state machine
+```python
+from smach import StateMachine
+```
+Since a SMACH StateMachine also provides a State interface, its outcomes and userdata interactions must be specified on construction. 
+```python
+sm = StateMachine(outcomes = ['outcome1', 'outcome2'],
+                  input_keys = ['input1', 'input2'],
+                  output_keys = ['output1', 'output2'])
+```
+Similarly to the SMACH State interface, input keys and output keys are optional. The constructor signature is: 
+```python
+__init__(self, outcomes, input_keys=[], output_keys=[]) 
+```
+* Adding States
+When adding states to a state machine you first specify the state machine you want to add states to. This can be done by using Python's "with" statement. You can think of this like "opening" the container for construction. It creates a context in which all subsequent add* calls will apply to the open container. 
+```python
+with sm:
+    StateMachine.add('FOO',
+                     FooState(),
+                     {'outcome2':'FOO',
+                      'outcome3':'BAR'})
+    StateMachine.add('BAR',
+                     BarState(),
+                     {'outcome3':'FOO',
+                      'outcome4':'outcome2'})
+```
+The above example adds the two states labeled "FOO" and "BAR", of type "FooState" and "BarState", respectively. There are optional arguments to the static add method. The signature of the add method is: 
+```python
+add(label, state, transitions=None, remapping=None)
+```
+### Concurrence container
+Importing
+```python
+from smach import Concurrence
+```
+* Concurrence Outcome Map
+The outcome map of a SMACH concurrence specifies the policy for determining the outcome of the concurrence based on the outcomes of its children. Specifically, the map is a dictionary where the keys are potential outcomes of the concurrence, and the values are dictionaries mapping child labels onto child outcomes. 
+```python
+cc = Concurrence(outcomes = ['outcome1', 'outcome2'],
+                 default_outcome = 'outcome1',
+                 input_keys = ['sm_input'],
+                 output_keys = ['sm_output'],
+                 outcome_map = {'succeeded':{'FOO':'succeeded',
+                                             'BAR':'outcome2'},
+                                'outcome3':{'FOO':'outcome2'}})
+with cc:
+    Concurrence.add('FOO', Foo())
+    Concurrence.add('BAR', Bar())
+```
+The example above specifies the following policy: 
+     * When 'FOO' has outcome 'succeeded' and 'BAR' has outcome 'outcome2', the state machine will exit with outcome 'succeeded'.
+     * When 'FOO' has outcome 'outcome2', the state machine will exit with outcome 'outcome3', independent of the outcome of state BAR.
+* Callbacks
+
+
 
 
 
