@@ -305,10 +305,81 @@ with cc:
     Concurrence.add('FOO', Foo())
     Concurrence.add('BAR', Bar())
 ```
-The example above specifies the following policy: <br />
-      * When 'FOO' has outcome 'succeeded' and 'BAR' has outcome 'outcome2', the state machine will exit with outcome 'succeeded'.
-      * When 'FOO' has outcome 'outcome2', the state machine will exit with outcome 'outcome3', independent of the outcome of state BAR.
+ * The example above specifies the following policy: <br />
+     * When 'FOO' has outcome 'succeeded' and 'BAR' has outcome 'outcome2', the state machine will exit with outcome 'succeeded'. 
+     * When 'FOO' has outcome 'outcome2', the state machine will exit with outcome 'outcome3', independent of the outcome of state BAR. 
+     
 * Callbacks
+If you want full control over a concurrence state machine, you can use the callbacks it provides, the child_termination_cb and the outcome_cb: 
+```python
+# gets called when ANY child state terminates
+def child_term_cb(outcome_map):
+
+  # terminate all running states if FOO finished with outcome 'outcome3'
+  if outcome_map['FOO'] == 'outcome3':
+    return True
+
+  # terminate all running states if BAR finished
+  if outcome_map['BAR']:
+    return True
+
+  # in all other case, just keep running, don't terminate anything
+  return False
+
+
+# gets called when ALL child states are terminated
+def out_cb(outcome_map):
+   if outcome_map['FOO'] == 'succeeded':
+      return 'outcome1'
+   else:
+      return 'outcome2'
+
+
+# creating the concurrence state machine
+sm = Concurrence(outcomes=['outcome1', 'outcome2'],
+                 default_outcome='outcome1',
+                 input_keys=['sm_input'],
+                 output_keys=['sm_output'],
+                 child_termination_cb = child_term_cb,
+                 outcome_cb = out_cb)
+                 
+with sm:
+   Concurrence.add('FOO', Foo(),
+                   remapping={'foo_in':'input'})
+
+   Concurrence.add('BAR', Bar(),
+                   remapping={'bar_out':'bar_out'})
+ 
+```
+The child_termination_cb is called every time one of the child states terminates. In the callback function you can decide if the state machine should keep running (return False), or if it should preempt all remaining running states (return True).<br />
+The outcome_cb is called once when the last child state terminates. This callback returns the outcome of the concurrence state machine. 
+### Sequence Container
+The Sequence container is a StateMachine container, extended with auto-generated transitions that create a sequence of states from the order in which said states are added to the container.
+* Creating a sequence container
+Import the sequence type
+```pyhton
+from smach import Sequence
+```
+A container Sequence has its outcomes, specified on construction, along with the 'connector_outcome' which is used for the automatic transitions. The constructor signature is: 
+```python
+__init__(self, outcomes, connector_outcome):
+```
+* Adding the states is same as we have seen before.
+* Example:
+```python
+sq = Sequence(
+        outcomes = ['succeeded','aborted','preempted'],
+        connector_outcome = 'succeeded')
+with sq:
+    Sequence.add('MOVE_ARM_GRAB_PRE', MoveVerticalGripperPoseActionState())
+    Sequence.add('MOVE_GRIPPER_OPEN', MoveGripperState(GRIPPER_MAX_WIDTH))
+    Sequence.add('MOVE_ARM_GRAB',     MoveVerticalGripperPoseActionState())
+    Sequence.add('MOVE_GRIPPER_CLOSE', MoveGripperState(grab_width))
+    Sequence.add('MOVE_ARM_GRAB_POST', MoveVerticalGripperPoseActionState())
+```
+### Iterator Container
+The iterator allows you to loop through a state or states until success conditions are met. 
+   
 
 
 
