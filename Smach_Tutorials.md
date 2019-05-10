@@ -244,7 +244,13 @@ with sm:
                       transitions={'succeeded':'APPROACH_PLUG'},
                       remapping={'gripper_output':'userdata_output'})
 ```
+__Example Code__ __:__[Link](http://wiki.ros.org/smach/Tutorials/Simple%20Action%20State)
 ### Concurrent state machines
+![](http://wiki.ros.org/smach/Tutorials/Concurrent%20States?action=AttachFile&do=get&target=concurrence2.png)<br />
+__Example Code__ __:__[__Link__](http://wiki.ros.org/smach/Tutorials/Concurrent%20States)
+* This code helps in understanding two states running in parallel.
+* For example the states FOO and BAR running at the same time when FOO gives outcome2 and BAR gives outcome1 then the outcome of BAS comes out to be outcome5otherwise a default outcome4.
+
 ### Viewing state machines
 
 
