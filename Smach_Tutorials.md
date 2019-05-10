@@ -143,7 +143,109 @@ __Example Code__ __:__ [__Link__](http://wiki.ros.org/smach/Tutorials/User%20Dat
 ```
 ![](http://wiki.ros.org/smach/Tutorials/Create%20a%20hierarchical%20state%20machine?action=AttachFile&do=get&target=sm_expanded.png)
 
-__Example Code__ __:__ [__Link__](http://wiki.ros.org/smach/Tutorials/Nesting%20State%20Machines)
+__Example Code__ __:__ [__Link__](http://wiki.ros.org/smach/Tutorials/Nesting%20State%20Machines)<br />
+* The only point to take away from this is that every state machine is also a normal state. 
+* So you can add a state machine to another state machine in the same way you add a state to a state machine.
+### Calling actions from state machine
+Import the lib first : 
+```python
+from smach_ros import SimpleActionState
+```
+* Empty goal message
+```python
+sm = StateMachine(['succeeded','aborted','preempted'])
+with sm:
+    smach.StateMachine.add('TRIGGER_GRIPPER',
+                           SimpleActionState('action_server_namespace',
+                                             GripperAction),
+                           transitions={'succeeded':'APPROACH_PLUG'})
+
+```
+* Fixed goal message
+```python
+sm = StateMachine(['succeeded','aborted','preempted'])
+with sm:
+    gripper_goal = Pr2GripperCommandGoal()
+    gripper_goal.command.position = 0.07
+    gripper_goal.command.max_effort = 99999
+    StateMachine.add('TRIGGER_GRIPPER',
+                      SimpleActionState('action_server_namespace',
+                                        GripperAction,
+                                        goal=gripper_goal),
+                      transitions={'succeeded':'APPROACH_PLUG'})
+```
+* Goal from user data
+```python
+sm = StateMachine(['succeeded','aborted','preempted'])
+with sm:
+    StateMachine.add('TRIGGER_GRIPPER',
+                      SimpleActionState('action_server_namespace',
+                                        GripperAction,
+                                        goal_slots=['max_effort', 
+                                                    'position']),
+                      transitions={'succeeded':'APPROACH_PLUG'},
+                      remapping={'max_effort':'user_data_max',
+                                 'position':'user_data_position'})
+```
+Imagine you have a number of fields in the user data that already contain all the structs you need for your goal message. Then you can simply connect the userdata directly to the fields in the goal message. So, from the example above we learn that the gripper action has two fields in its goal: max_effort and position. Imagine our userdata contains the corresponding fields user_data_max and user_data_position. The code below connects the corresponding fields. 
+* Goal Callback
+```python
+sm = StateMachine(['succeeded','aborted','preempted'])
+with sm:
+    def gripper_goal_cb(userdata, goal):
+       gripper_goal = GripperGoal()
+       gripper_goal.position.x = 2.0
+       gripper_goal.max_effort = userdata.gripper_input
+       return gripper_goal
+
+    StateMachine.add('TRIGGER_GRIPPER',
+                      SimpleActionState('action_server_namespace',
+                                        GripperAction,
+                                        goal_cb=gripper_goal_cb,
+                                        input_keys=['gripper_input'])
+                      transitions={'succeeded':'APPROACH_PLUG'},
+                      remapping={'gripper_input':'userdata_input'})
+
+```
+You can get a callback when the action needs a goal, and you can create your own goal message on demand. 
+* Result to user data
+```python
+sm = StateMachine(['succeeded','aborted','preempted'])
+with sm:
+    StateMachine.add('TRIGGER_GRIPPER',
+                      SimpleActionState('action_server_namespace',
+                                        GripperAction,
+                                        result_slots=['max_effort', 
+                                                      'position']),
+                      transitions={'succeeded':'APPROACH_PLUG'},
+                      remapping={'max_effort':'user_data_max',
+                                 'position':'user_data_position'})
+
+```
+* Result callback
+The result callback is very similar to the goal callback. It allows you to read any data from the action result fields, and even return a different outcome than the default 'succeeded', 'preempted', 'aborted'.<br />
+In the result callback you get the status of the action, which tells you if the action succeeded, aborted or was preempted. Plus you get access to the userdata, and the result of the action. <br />
+Optionally you can return a different outcome from the result callback. If you don't return anything, the state will return with the corresponding outcome of the action. 
+
+
+```python
+sm = StateMachine(['succeeded','aborted','preempted'])
+with sm:
+    def gripper_result_cb(userdata, status, result):
+       if status == GoalStatus.SUCCEEDED:
+          userdata.gripper_output = result.num_iterations
+          return 'my_outcome'
+
+    StateMachine.add('TRIGGER_GRIPPER',
+                      SimpleActionState('action_server_namespace',
+                                        GripperAction,
+                                        result_cb=gripper_result_cb,
+                                        output_keys=['gripper_output'])
+                      transitions={'succeeded':'APPROACH_PLUG'},
+                      remapping={'gripper_output':'userdata_output'})
+```
+### Concurrent state machines
+### Viewing state machines
 
 
 
