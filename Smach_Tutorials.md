@@ -85,6 +85,65 @@ The remapping field maps the in/output_key of a state to a userdata field of the
 
 ![](http://wiki.ros.org/smach/Tutorials/User%20Data?action=AttachFile&do=get&target=user_data.png)<br />
 __Example Code__ __:__ [__Link__](http://wiki.ros.org/smach/Tutorials/User%20Data%20Passing)
+### Nesting state machines
+* For this example, we create a number of states, each with a number of outcomes, input keys and output keys specified.
+```python
+# State Foo
+  class Foo(smach.State):
+     def __init__(self, outcomes=['outcome1', 'outcome2'])
+     
+     def execute(self, userdata):
+        return 'outcome1'
+
+
+  # State Bar
+  class Bar(smach.State):
+     def __init__(self, outcomes=['outcome1'])
+     
+     def execute(self, userdata):
+        return 'outcome4'
+
+
+  # State Bas
+  class Bas(smach.State):
+     def __init__(self, outcomes=['outcome3'])
+     
+     def execute(self, userdata):
+        return 'outcome3'
+
+
+```
+* We create a top level state machine, and start adding states to it. One of the states we add is another state machine.
+```python
+ # Create the top level SMACH state machine
+    sm_top = smach.StateMachine(outcomes=['outcome5'])
+
+    # Open the container
+    with sm_top:
+
+        smach.StateMachine.add('BAS', Bas(),
+                               transitions={'outcome3':'SUB'})
+
+        # Create the sub SMACH state machine 
+        sm_sub = smach.StateMachine(outcomes=['outcome4'])
+
+        # Open the container 
+        with sm_sub:
+
+            # Add states to the container 
+            smach.StateMachine.add('FOO', Foo(),
+                                   transitions={'outcome1':'BAR', 
+                                                'outcome2':'outcome4'})
+            smach.StateMachine.add('BAR', Bar(),
+                                   transitions={'outcome1':'FOO'})
+
+        smach.StateMachine.add('SUB', sm_sub,
+                               transitions={'outcome4':'outcome5'})
+
+```
+![](http://wiki.ros.org/smach/Tutorials/Create%20a%20hierarchical%20state%20machine?action=AttachFile&do=get&target=sm_expanded.png)
+
+__Example Code__ __:__ [__Link__](http://wiki.ros.org/smach/Tutorials/Nesting%20State%20Machines)
 
 
 
