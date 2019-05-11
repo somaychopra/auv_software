@@ -387,6 +387,46 @@ Sample Code : [Link](http://wiki.ros.org/smach/Tutorials/Iterator%20container)
 Code Explained : 
 ```python
 ```
+### Wrapping a Container With actionlib
+SMACH provides the top-level container called ActionServerWrapper. This class advertises an actionlib action server. Instead of being executed by a parent, its contained state goes active when the action server receives a goal. Accordingly, this container does not inherit from the smach.State base class and cannot be put inside of another container. <br />
+The action server wrapper can inject the goal message received by the action server into the contained state, as well as extract the result message from that state when it terminates. When constructing the action server wrapper, the user specifies which state machine outcomes correspond to a succeeded, aborted, or preempted result. 
+```python
+import rospy
+
+from smach import StateMachine
+from smach_ros import ActionServerWrapper
+
+# Construct state machine
+sm = StateMachine(outcomes=['did_something',
+                            'did_something_else',
+                            'aborted',
+                            'preempted'])
+with sm:
+    ### Add states in here...
+
+# Construct action server wrapper
+asw = ActionServerWrapper(
+    'my_action_server_name', MyAction,
+    wrapped_container = sm,
+    succeeded_outcomes = ['did_something','did_something_else'],
+    aborted_outcomes = ['aborted'],
+    preempted_outcomes = ['preempted'] )
+
+# Run the server in a background thread
+asw.run_server()
+
+# Wait for control-c
+rospy.spin()
+```
+* Construction
+```python
+asw = ActionServerWrapper(
+    'my_action_server_name', MyAction, sm,
+    ['did_something','did_something_else'], ['aborted'], ['preempted'],
+    goal_key = 'my_awesome_goal',
+    result_key = 'egad_its_a_result' )
+```
+The keyword arguments goal_key and result_key are the SMACH userdata keys in the context of the ActionServerWrapper. Like any other container, this means that the wrapper's contained state (in this case the state machine sm) will receive a reference to this userdata structure when its execute() method is called. Similarly to how userdata is passed between scopes in nested state machines, in this case, you need to set these key identifiers in the state machine sm as well.
 ## SMACH States
 ### Service state
 Import
