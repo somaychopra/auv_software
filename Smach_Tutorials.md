@@ -378,8 +378,48 @@ with sq:
     Sequence.add('MOVE_ARM_GRAB_POST', MoveVerticalGripperPoseActionState())
 ```
 ### Iterator Container
-The iterator allows you to loop through a state or states until success conditions are met. 
-   
+The iterator allows you to loop through a state or states until success conditions are met. <br />
+The constructor takes the following arguements : 
+```python
+__init__(self, outcomes, input_keys, output_keys, it=[], it_label='it_data', exhausted_outcome='exhausted')
+```
+Sample Code : [Link](http://wiki.ros.org/smach/Tutorials/Iterator%20container)
+Code Explained : 
+```python
+```
+## SMACH States
+### Service state
+Import
+```python
+from smach_ros import ServiceState
+```
+ The service state is almost identical to the simple action state. Just replace 'goal' with 'request', and 'result' with 'response'. 
+### Monitor state
+Setup : Here's an example of a simple state machine using MonitorState. In order to transition from state Foo to state Bar, send a message to the /sm_reset topic: 
+```
+rostopic pub -1 /sm_reset std_msgs/Empty
+```
+```python
+def monitor_cb(ud, msg):
+    return False
+```
+Arguments are the userdata and the message. This needs to return False when we want the monitor state to terminate. 
+```python
+ sm = smach.StateMachine(outcomes=['DONE'])
+    with sm:
+        smach.StateMachine.add('FOO', 
+                               smach_ros.MonitorState("/sm_reset", 
+                                                      Empty, 
+                                                      monitor_cb), 
+                               transitions={'invalid':'BAR', 
+                                            'valid':'FOO', 
+                                            'preempted':'FOO'})
+```
+Note that your MonitorState needs to define transitions for all three possible outcomes ('valid', 'invalid', 'preempted'). 
+```python
+def __init__(self, topic, msg_type, cond_cb, max_checks=-1)
+```
+The max_checks argument is a limit on how many times the monitor_cb can be called before the MonitorState will return 'valid'.
 
 
 
