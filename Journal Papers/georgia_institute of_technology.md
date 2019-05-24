@@ -1,4 +1,4 @@
-# AUV (GIT)
+# AUV (GIT) ([Link](https://robonation.org/sites/default/files/GeorgiaTech_2016_RoboSub_Journal.pdf))
 ## AAVS
 * The Adept Autonomous Vehicle Simulation (AAVS) is a simulation environment developed inhouse at ASDL.It is coded in the C# programming language nd runs on the Microsoft Windows operating system.
 ## Hardware/Software interface
