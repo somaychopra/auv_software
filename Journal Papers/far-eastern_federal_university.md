@@ -1,4 +1,4 @@
-# FEFU RoboSub 2016
+# FEFU RoboSub 2016 ([Link](https://robonation.org/sites/default/files/FarEasternFedUni_2016_RoboSub_Journal.pdf))
 ## ROS structure
 * Ros is used as an interprocess communication  frame-work .
 * Messages are divided into two groups commands and data messages.
