@@ -1,4 +1,4 @@
-# Zeabus AUV
+# Zeabus AUV ([Link](https://robonation.org/sites/default/files/KasetsartUniandChulalongkornUni_2016_RoboSub_Journal.pdf))
 ## Mission planner group module
 * Sensors such as IMU, cameras, and hydrophones, will send data through communication  channels,  and  then  the  sensor  fusion software  module  will  fuse  all  data  together  in  order  to process in the next step
 ![](https://screenshotscdn.firefoxusercontent.com/images/ec2539af-5334-4826-8d8f-f66ed121c82c.png/Screenshot_2019-05-24_Microsoft_Word_-_2016_team_description_paper_docx_-_KasetsartUniandChulalongkornUni_2016_RoboSub_Jour%5B...%5D.png)
