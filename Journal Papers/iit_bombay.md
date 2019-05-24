@@ -1,4 +1,4 @@
-# Matsya 4A
+# Matsya 4A ([Link](https://robonation.org/sites/default/files/IITBombay_2016_RoboSub_Journal.pdf))
 * The  Software  Stack  of  Matsya  4A  has  beendeveloped on top of Robot Operating System(ROS), developed at Willow Garage
 * Off-Board Computing:  This layer consistsof specialized hardware like filters, ampli-fiers, ADC, GPIO, etc.  
 * Firmware/Driver  Layer:   Responsible  forall of the Hardware Abstraction, this layerhelps abstract data from the sensors andpresent them as processes to the SBC
